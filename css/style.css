@@ -1,0 +1,18 @@
+h1{
+  font-size: 50px;
+  font-family: georgia;
+}
+h2{
+  
+}
+button {
+  margin-top: 20px;
+  line-height: 60px;
+  font-weight: bold;
+  padding: 0 40px;
+  background: orange;
+  border: none;
+}
+button:hover {
+  background: lightsalmon;
+}
