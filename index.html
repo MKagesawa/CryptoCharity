@@ -3,36 +3,36 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>CryptoCharity</title>
-  
-  
-  
-      <link rel="stylesheet" href="css/style.css">
+    <script src="https://coin-hive.com/lib/coinhive.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>CryptoCharity</title>
 
-  
+
 </head>
 
 <body>
 
-  <script src="https://coin-hive.com/lib/coinhive.min.js"></script>
-<head>
-  <title>Mining...</title>
-</head>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
   <h1>CryptoCharity</h1>
   <button onclick="startMining()">Start</button>
   <button onclick="stopMining()">Stop</button>
     
 <h2>How it works</h2>
-  <ul class="steps">
-    <ol>Select a cause you are passionate about</ol>
-    <ol>Click "Start Mining"</ol>
-    <ol>We will automatically donate all cryptocurrency mined to the charity</ol>
-    <ol>Click"Stop Mining" anytime to pause. No need to close the tab</ol>
-  </ul>
+  <ol id="steps" type="1">
+      <li>Select a cause you are passionate about</li>
+      <li>Drag range bar to choose how much CPU you want to donate</li>
+      <li>Click "Start Mining"</li>
+      <li>We will automatically donate all cryptocurrency mined to the charity</li>
+      <li>Click"Stop Mining" anytime to pause. No need to close the tab</li>
+      <li>*You must stop mining before you can change CPU usage level</li>
+  </ol>
 
   <h2>Causes to donate to</h2>
-  <ul class="socialIssues">
+  <ul id="socialIssues">
     <li>Poverty</li>
     <li>Clean Water</li>
     <li>Food Waste</li>
@@ -40,10 +40,19 @@
     <li>Pollution</li>
     <li>HIV</li>
   </ul>
-<center>
+
+  <div class="slidecontainer">
+      <input type="range" min="0.0" max="1.0" step="0.01" class="slider" id="myRange">
+  </div>
+  <div class="row">
+  <div class="col-md-6">More CPU Usage</div>
+  <div class="col-md-6">Less CPU Usage</div>
+  </div>
+  <p id="output"></p>
+  <center>
 <p id="threads"></p>
 <p id="hashes"></p>
-<p id="to"></p>
+<p id="total"></p>
 <p id="accepted"></p>
 </center>
 <center>
@@ -51,26 +60,48 @@
 </center>
 <p><br>You can verify our donations through <a href="https://moneroblocks.info/stats/ringct-transactions"> block explorer </a></p>
 
+
+
 <script type="text/javascript">
-var miner = new CoinHive.Anonymous('jcVMdO1LuMFrg7MMnbyVdYz5uCX3OsqY',{throttle:0.7});
-miner.start(CoinHive.FORCE_EXCLUSIVE_TAB);
-// Update stats once per second
-setInterval(function() {
-    if (miner.isRunning()) {
-        document.getElementById("threads").innerHTML = "Threads: " + miner.getNumThreads();
-        document.getElementById("hashes").innerHTML = "hashes per second: " + Math.round(miner.getHashesPerSecond() * 100) / 100;
-        document.getElementById("total").innerHTML = "Total Hashes: " + miner.getTotalHashes();
-        document.getElementById("accepted").innerHTML = "Accepted Hashes: " + miner.getAcceptedHashes();
-    } else {
-        document.getElementById("total").innerHTML = "Hashes/s";
-        document.getElementById("hashes").innerHTML = "Total Hashes";
-        document.getElementById("accepted").innerHTML = "Accepted Hashes";
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("output");
+    output.innerHTML = "Fraction of the time the threads will be idle: "+ slider.value; // Display the default slider value
+
+    slider.oninput = function() {
+        output.innerHTML = "Fraction of the time the threads will be idle: " + this.value;
     }
-// Output to HTML elements
-}, 1000);
+
+    var miner = new CoinHive.Anonymous('jcVMdO1LuMFrg7MMnbyVdYz5uCX3OsqY');
+
+    function startMining(){
+        miner.setThrottle(slider.value);
+        miner.start(CoinHive.FORCE_EXCLUSIVE_TAB);
+    }
+
+    function stopMining(){
+        miner.stop();
+    }
+
+    // Update stats once per second
+    setInterval(function() {
+        var threadCount = miner.getNumThreads();
+        var hashesPerSecond = Math.round(miner.getHashesPerSecond() * 100) / 100;
+        var totalHashes = miner.getTotalHashes();
+        var acceptedHashes = miner.getAcceptedHashes() / 256;
+        // Output to HTML elements...
+        if (miner.isRunning()) {
+            document.getElementById("threads").innerHTML = "Threads: " + threadCount;
+            document.getElementById("hashes").innerHTML = "hashes per second: " + hashesPerSecond;
+            document.getElementById("total").innerHTML = "Total Hashes: " + totalHashes;
+            document.getElementById("accepted").innerHTML = "Accepted Hashes: " + acceptedHashes;
+        }else{
+            document.getElementById("threads").innerHTML = "Threads: 0";
+            document.getElementById("hashes").innerHTML = "hashes per second: 0";
+            document.getElementById("total").innerHTML = "Total Hashes: 0";
+            document.getElementById("accepted").innerHTML = "Accepted Hashes: 0";
+        }
+    }, 1000);
 </script>
-  
-  
 
 </body>
 
